@@ -1,0 +1,225 @@
+%let HOME_DIR       = /sas/bam/Dev;
+%let DATA_DIR       = /Data;
+%let LOG_DIR        = /Logs;
+%let OUTPUT_DIR     = /Output;
+%let SCRIPTS_DIR    = /Scripts;
+%let LOC_DIR        =  ;
+%let UTILITIES_DIR  = /Utilities;
+
+%inc "&HOME_DIR.&UTILITIES_DIR./Access/dwhs_access_info.txt" ;
+libname td Teradata user=&dwhsuserid password=&dwhspasswd database=prs_restricted_v tdpid="&tdpid_name";
+libname tmp '/sas/bam/MANUAL_Dev/qiqin/Data/';
+
+proc sql; 
+  describe table td.MAC_USER_CLCTN;
+  select count(*) from td.mac_user_clctn where exc_inc_flag_cd='E' and rule_type_desc='ATO';
+/*
+
+1)	ATO suspension (from prs_restricted_v.MAC_USER_CLCTN; where EXC_INC_FLAG_CD  = 'E' and RULE_TYPE_DESC = ¡®ATO¡¯)
+2)	Zero listings Post ATO flag date (can you please check with DW team (PingPing¡¯s) team to how to pull this criteria)
+ prs_restricted_v.MAC_USER_CLCTN  (
+   USER_ID num format=19. informat=19. label='USER_ID',
+   MAC_ACTVTY_ID num format=19. informat=19. label='MAC_ACTVTY_ID',
+   ISSUE_NODE_ID num format=19. informat=19. label='ISSUE_NODE_ID',
+   ISSUE_NODE_DESC char(500) format=$500. informat=$500. label='ISSUE_NODE_DESC',
+   RULE_NODE_ID num format=19. informat=19. label='RULE_NODE_ID',
+   RULE_NODE_DESC char(500) format=$500. informat=$500. label='RULE_NODE_DESC',
+   RULE_TYPE_DESC char(50) format=$50. informat=$50. label='RULE_TYPE_DESC',
+   DSPSTN_NODE_ID num format=19. informat=19. label='DSPSTN_NODE_ID',
+   DSPSTN_NODE_DESC char(500) format=$500. informat=$500. label='DSPSTN_NODE_DESC',
+   RLTD_ISSUE_NODE_ID num format=19. informat=19. label='RLTD_ISSUE_NODE_ID',
+   RLTD_ISSUE_NODE_DESC char(500) format=$500. informat=$500. label='RLTD_ISSUE_NODE_DESC',
+   RLTD_RULE_NODE_ID num format=19. informat=19. label='RLTD_RULE_NODE_ID',
+   RLTD_RULE_NODE_DESC char(500) format=$500. informat=$500. label='RLTD_RULE_NODE_DESC',
+   RLTD_DSPSTN_NODE_ID num format=19. informat=19. label='RLTD_DSPSTN_NODE_ID',
+   RLTD_DSPSTN_NODE_DESC char(500) format=$500. informat=$500. label='RLTD_DSPSTN_NODE_DESC',
+   EXC_INC_FLAG_CD char(3) format=$3. informat=$3. label='EXC_INC_FLAG_CD',
+   SRC_CRE_DT num format=DATE9. informat=DATE9. label='SRC_CRE_DT',
+   SRC_CRE_TM num format=TIME8. informat=TIME8. label='SRC_CRE_TM',
+   SRC_LAST_MDFD_DT num format=DATE9. informat=DATE9. label='SRC_LAST_MDFD_DT',
+   SRC_LAST_MDFD_TM num format=TIME8. informat=TIME8. label='SRC_LAST_MDFD_TM',
+   CRE_DATE num format=DATE9. informat=DATE9. label='CRE_DATE',
+   CRE_USER char(30) format=$30. informat=$30. label='CRE_USER',
+   UPD_DATE num format=DATETIME26.6 informat=DATETIME26.6 label='UPD_DATE',
+   UPD_USER char(30) format=$30. informat=$30. label='UPD_USER'
+  );
+
+ddm_tns_t.bad_acct_event  (
+   USER_ID num format=19. informat=19. label='USER_ID',
+   EVENT_END_DT num format=DATE9. informat=DATE9. label='EVENT_END_DT',
+   EVENT_END_TM num format=TIME8. informat=TIME8. label='EVENT_END_TM',
+   ACCT_EVENT_TYPE_CD num format=6. informat=6. label='ACCT_EVENT_TYPE_CD',
+   EVENT_START_DT num format=DATE9. informat=DATE9. label='EVENT_START_DT',
+   EVENT_START_TM num format=TIME8. informat=TIME8. label='EVENT_START_TM',
+   USER_SITE_ID num format=4. informat=4. label='USER_SITE_ID',
+   DTCTD_SITE_ID num format=4. informat=4. label='DTCTD_SITE_ID',
+   EVENT_RPRTD_DT num format=DATE9. informat=DATE9. label='EVENT_RPRTD_DT',
+   EVENT_RPRTD_TM num format=TIME8. informat=TIME8. label='EVENT_RPRTD_TM',
+   CNTRY_ID num format=11. informat=11. label='CNTRY_ID',
+   CASE_ID num format=19. informat=19. label='CASE_ID',
+   BYR_USEGM_ID num format=6. informat=6. label='BYR_USEGM_ID',
+   SNP_USEGM_ID num format=6. informat=6. label='SNP_USEGM_ID',
+   CURR_FDBK_SCORE_NUM num format=19. informat=19. label='CURR_FDBK_SCORE_NUM',
+   PWD_CHNG_IND num format=4. informat=4. label='PWD_CHNG_IND',
+   EMAIL_CHNG_IND num format=4. informat=4. label='EMAIL_CHNG_IND',
+   NEW_CC_ADDED_IND num format=4. informat=4. label='NEW_CC_ADDED_IND',
+   IFD_IND num format=4. informat=4. label='IFD_IND',
+   CRE_DATE num format=DATE9. informat=DATE9. label='CRE_DATE',
+   CRE_USER char(10) format=$10. informat=$10. label='CRE_USER',
+   UPD_DATE num format=DATETIME19. informat=DATETIME19. label='UPD_DATE',
+   UPD_USER char(10) format=$10. informat=$10. label='UPD_USER'
+
+DW_USER_COFALA  (
+   USER_ID num format=19. informat=19. label='USER_ID',
+   COFA_BID_SITE_ID num format=5. informat=5. label='COFA_BID_SITE_ID',
+   COFA_BID_LEAF_ID num format=10. informat=10. label='COFA_BID_LEAF_ID',
+   COFA_BID_DATE num format=DATE9. informat=DATE9. label='COFA_BID_DATE',
+   COFA_BID_DT num format=DATETIME19. informat=DATETIME19. label='COFA_BID_DT',
+   COFA_BID_ITEM_ID num format=19. informat=19. label='COFA_BID_ITEM_ID',
+   COFA_BID_SUCC_SITE_ID num format=5. informat=5. label='COFA_BID_SUCC_SITE_ID',
+   COFA_BID_SUCC_LEAF_ID num format=10. informat=10. label='COFA_BID_SUCC_LEAF_ID',
+   COFA_BID_SUCC_DATE num format=DATE9. informat=DATE9. label='COFA_BID_SUCC_DATE',
+   COFA_BID_SUCC_DT num format=DATETIME19. informat=DATETIME19. label='COFA_BID_SUCC_DT',
+   COFA_BID_SUCC_ITEM_ID num format=19. informat=19. label='COFA_BID_SUCC_ITEM_ID',
+   COFA_BID_SUCC_GMS num format=20.2 informat=20.2 label='COFA_BID_SUCC_GMS',
+   COLA_BID_SITE_ID num format=5. informat=5. label='COLA_BID_SITE_ID',
+   COLA_BID_LEAF_ID num format=10. informat=10. label='COLA_BID_LEAF_ID',
+   COLA_BID_DATE num format=DATE9. informat=DATE9. label='COLA_BID_DATE',
+   COLA_BID_DT num format=DATETIME19. informat=DATETIME19. label='COLA_BID_DT',
+   COLA_BID_ITEM_ID num format=19. informat=19. label='COLA_BID_ITEM_ID',
+   COLA_BID_SUCC_SITE_ID num format=5. informat=5. label='COLA_BID_SUCC_SITE_ID',
+   COLA_BID_SUCC_LEAF_ID num format=10. informat=10. label='COLA_BID_SUCC_LEAF_ID',
+   COLA_BID_SUCC_DATE num format=DATE9. informat=DATE9. label='COLA_BID_SUCC_DATE',
+   COLA_BID_SUCC_DT num format=DATETIME19. informat=DATETIME19. label='COLA_BID_SUCC_DT',
+   COLA_BID_SUCC_ITEM_ID num format=19. informat=19. label='COLA_BID_SUCC_ITEM_ID',
+   COLA_BID_SUCC_GMS num format=20.2 informat=20.2 label='COLA_BID_SUCC_GMS',
+   COFA_LSTG_SITE_ID num format=5. informat=5. label='COFA_LSTG_SITE_ID',
+   COFA_LSTG_LEAF_ID num format=10. informat=10. label='COFA_LSTG_LEAF_ID',
+   COFA_LSTG_AUCT_END_DATE num format=DATE9. informat=DATE9. label='COFA_LSTG_AUCT_END_DATE',
+   COFA_LSTG_AUCT_END_DT num format=DATETIME19. informat=DATETIME19. label='COFA_LSTG_AUCT_END_DT',
+   COFA_LSTG_ITEM_ID num format=19. informat=19. label='COFA_LSTG_ITEM_ID',
+   COFA_LSTG_SUCC_SITE_ID num format=5. informat=5. label='COFA_LSTG_SUCC_SITE_ID',
+   COFA_LSTG_SUCC_LEAF_ID num format=10. informat=10. label='COFA_LSTG_SUCC_LEAF_ID',
+   COFA_LSTG_SUCC_AUCT_END_DATE num format=DATE9. informat=DATE9. label='COFA_LSTG_SUCC_AUCT_END_DATE',
+   COFA_LSTG_SUCC_AUCT_END_DT num format=DATETIME19. informat=DATETIME19. label='COFA_LSTG_SUCC_AUCT_END_DT',
+   COFA_LSTG_SUCC_ITEM_ID num format=19. informat=19. label='COFA_LSTG_SUCC_ITEM_ID',
+   COFA_LSTG_SUCC_GMS num format=20.2 informat=20.2 label='COFA_LSTG_SUCC_GMS',
+   COLA_LSTG_SITE_ID num format=5. informat=5. label='COLA_LSTG_SITE_ID',
+   COLA_LSTG_LEAF_ID num format=10. informat=10. label='COLA_LSTG_LEAF_ID',
+   COLA_LSTG_AUCT_END_DATE num format=DATE9. informat=DATE9. label='COLA_LSTG_AUCT_END_DATE',
+   COLA_LSTG_AUCT_END_DT num format=DATETIME19. informat=DATETIME19. label='COLA_LSTG_AUCT_END_DT',
+   COLA_LSTG_ITEM_ID num format=19. informat=19. label='COLA_LSTG_ITEM_ID',
+   COLA_LSTG_SUCC_SITE_ID num format=5. informat=5. label='COLA_LSTG_SUCC_SITE_ID',
+   COLA_LSTG_SUCC_LEAF_ID num format=10. informat=10. label='COLA_LSTG_SUCC_LEAF_ID',
+   COLA_LSTG_SUCC_AUCT_END_DATE num format=DATE9. informat=DATE9. label='COLA_LSTG_SUCC_AUCT_END_DATE',
+   COLA_LSTG_SUCC_AUCT_END_DT num format=DATETIME19. informat=DATETIME19. label='COLA_LSTG_SUCC_AUCT_END_DT',
+   COLA_LSTG_SUCC_ITEM_ID num format=19. informat=19. label='COLA_LSTG_SUCC_ITEM_ID',
+   COLA_LSTG_SUCC_GMS num format=20.2 informat=20.2 label='COLA_LSTG_SUCC_GMS',
+   CRE_USER char(10) format=$10. informat=$10. label='CRE_USER',
+   CRE_DATE num format=DATE9. informat=DATE9. label='CRE_DATE',
+   UPD_USER char(10) format=$10. informat=$10. label='UPD_USER',
+   UPD_DATE num format=DATETIME19. informat=DATETIME19. label='UPD_DATE',
+   COFA_LSTG_AUCT_START_DATE num format=DATE9. informat=DATE9. label='COFA_LSTG_AUCT_START_DATE',
+   COFA_LSTG_AUCT_START_DT num format=DATETIME19. informat=DATETIME19. label='COFA_LSTG_AUCT_START_DT',
+   COFA_LSTG_SUCC_AUCT_START_DATE num format=DATE9. informat=DATE9. label='COFA_LSTG_SUCC_AUCT_START_DATE',
+   COFA_LSTG_SUCC_AUCT_START_DT num format=DATETIME19. informat=DATETIME19. label='COFA_LSTG_SUCC_AUCT_START_DT',
+   COLA_LSTG_AUCT_START_DATE num format=DATE9. informat=DATE9. label='COLA_LSTG_AUCT_START_DATE',
+3                                                          The SAS System                              23:50 Wednesday, June 1, 2011
+
+   COLA_LSTG_AUCT_START_DT num format=DATETIME19. informat=DATETIME19. label='COLA_LSTG_AUCT_START_DT',
+   COLA_LSTG_SUCC_AUCT_START_DATE num format=DATE9. informat=DATE9. label='COLA_LSTG_SUCC_AUCT_START_DATE',
+   COLA_LSTG_SUCC_AUCT_START_DT num format=DATETIME19. informat=DATETIME19. label='COLA_LSTG_SUCC_AUCT_START_DT'
+  );
+
+*/
+
+
+
+proc sql ;
+	connect to teradata as td (user=&dwhsuserid password=&dwhspasswd tdpid="&tdpid_name");
+
+	create table ato_ex_endlst as select * from connection to td
+	( 
+	  select a.user_id, a.EXC_INC_FLAG_CD, a.rule_type_desc,b.last_ato_end_dt , c.COLA_LSTG_AUCT_START_DATE, c.COLA_LSTG_AUCT_END_DATE 
+	  from (
+	    select * from prs_restricted_v.MAC_USER_CLCTN 
+	    where EXC_INC_FLAG_CD= 'E' and RULE_TYPE_DESC ='ATO'
+	  ) a
+	  left join (
+	    select user_id,  max(event_end_dt) as  last_ato_end_dt
+	    from ddm_tns_t.bad_acct_Event
+	    where acct_event_type_cd between 1001 and 1009 
+	    group by user_id
+	  ) b 
+		on a.user_id=b.user_id
+	  left join DW_USER_COFALA c 
+		on a.user_id=c.user_id
+	);
+quit;
+/*	
+
+proc sql ;
+	connect to teradata as td (user=&dwhsuserid password=&dwhspasswd tdpid="&tdpid_name");
+
+	 select count(*) from connection to td
+	( 
+	select count(*) from ddm_tns_t.bad_acct_Event
+
+  select distinct max(EVENT_START_DT) as max_start, min(event_start_dt) as min_start, max(event_end_dt)as max_end, min(event_end_dt) as min_end	from ddm_tns_t.bad_acct_Event
+
+  select count(*) from ddm_tns_t.bad_acct_Event where event_end_dt is null
+
+  select * from ddm_tns_t.bad_acct_Event where event_start_dt='2011-07-02' 
+  select count(distinct user_id) from ddm_tns_t.bad_acct_Event 
+  where acct_event_type_cd between 1000 and 1010
+  select distinct acct_event_type_cd from ddm_tns_t.bad_acct_Event  where acct_event_type_cd between 1001 and 1009
+	    select distinct user_id
+	    from ddm_tns_t.bad_acct_Event
+	    where acct_event_type_cd between 1001 and 1009 
+	);
+quit;
+*/
+
+
+ proc sort data=ato_ex_endlst out=tmp.ato_ex_endlst(compress=yes);by user_id;run;
+
+proc export data=ato_ex_endlst dbms=csv outfile='~/ato_ex_endlst.csv'; run;
+
+
+
+proc sql ;
+	connect to teradata as td (user=&dwhsuserid password=&dwhspasswd tdpid="&tdpid_name");
+
+	create table ato_ex_endlst as select * from connection to td
+	( 
+	  select a.user_id, a.EXC_INC_FLAG_CD, a.rule_type_desc,b.acct_event_type_cd,
+	    b.event_start_dt,b.event_end_dt, c.COLA_LSTG_AUCT_START_DATE, c.COLA_LSTG_AUCT_END_DATE 
+	  from (
+	    select * from prs_restricted_v.MAC_USER_CLCTN 
+	    where EXC_INC_FLAG_CD= 'E' and RULE_TYPE_DESC ='ATO'
+	  ) a
+	  left join (
+	    select user_id, acct_event_type_cd, event_start_dt, event_end_dt
+	    from ddm_tns_t.bad_acct_Event
+	    where acct_event_type_cd between 1001 and 1009 
+	  ) b 
+		on a.user_id=b.user_id
+	  left join DW_USER_COFALA c 
+		on a.user_id=c.user_id
+	);
+quit;
+
+libname sysdata '/sas/bam/Dev/Data';
+data tmp.ato_ex_endlst_full(compress=yes); 
+  set ato_ex_endlst; by user_id; if last.user_id;run;
+  
+data tmp.ato_ex_endlst_full(compress=yes); 
+  merge tmp.ato_ex_endlst_full(in=a) sysdata.user_fact_ds(keep=user_id status_cd);
+  by user_id;
+  if a;
+run;
+
+
+proc export data=tmp.ato_ex_endlst_full dbms=csv outfile='~/ato_ex_endlst_full.csv'; run;
+
+
